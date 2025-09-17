@@ -1,35 +1,5 @@
 import { formatDate, generateRandomString } from "./utils.js";
 
-const columnasConPuntajes = [
-  "1_cumple_con_las_especificaciones_tecnicas",
-  "2_entrega_oportuna_del_producto",
-  "3_servicio_post-venta",
-  "4_entrega_de_certificado_de_calidad",
-  "5_cumple_con_las_especificaciones_tecnicas_del_servicio",
-  "6_cumple_con_el_programa_de_obra",
-  "7_ofrece_capacidad_de_respuesta_ante_las_solicitudes_de_los_clientes",
-  "8_aporta_positivamente_a_la_solucion_de_problemas_en_el_proyecto",
-  "9_cumple_oportunamente_con_la_documentación_solicitada_para_el_ingreso",
-  "10_cumple_oportunamente_con_los_aportes_de_seguridad_social",
-  "11_cumple_oportunamente_con_la_realización_de_examenes_ocupacionales",
-  "12_participa_activamente_en_actividades_sst_inducciones_capacitaciones",
-  "13_cumple_con_el_uso_de_los_elementos_de_proteccion_personal",
-  "14_cumple _con_el_reporte_de_todas_las_novedades_del_personal",
-  "15_cumple_con_los_reportes_de_accidentes_presentados",
-  "16_cumple_oportunamente_con_los_registros_solicitados_del_sg-sst_y_ambiental",
-  "17_cumple_con_las_especificaciones_tecnicas_de_los_materiales",
-  "18_disponibilidad_del_material",
-  "19_entregas_oportunas",
-  "20_vigencia_de_licencias_que_apliquen",
-  "21_programacion_y_ejecucion_de_los_trabajos_de_campo",
-  "22_cumple_con_las_fechas_definidas_para_entrega_de_informes",
-  "23_cumple_oportunamente_con_los_registros_solicitados_del_sg-sst_o_cert_calibr",
-  "24_cumple_con_el_servicio_dentro_del_programa_establecido",
-  "25_cumple_con_los_todos_los_permisos_o_licencias_requeridas",
-  "26_continuidad_y_rendimiento_en_la_prestacion_del_servicio",
-  "27_suministra_el_personal_competente_para_el_servicio_que_presta",
-];
-
 function transform_dim_criterios_de_evaluacion(data) {
   const criterios = data.criterios_de_evaluacionArr;
   return criterios.map((criterio) => {
@@ -182,12 +152,6 @@ export function transform_fact_planes_de_evaluacion(data) {
   const tipoProveedorCriteriosPuntajesArr =
     data.tipo_proveedor_criterios_puntajesArr;
   const proveedoresArr = data.proveedoresArr;
-  const tiposProveedorArr = data.tipos_de_proveedoresArr;
-
-  const obrasMap = new Map(data.obrasArr.map((obra) => [obra["Row ID"], obra]));
-  const cortesDeEvaluacionMap = new Map(
-    cortesDeEvaluacionArr.map((corte) => [corte["Row ID"], corte])
-  );
 
   const obrasUsuariosMap = new Map();
   usuariosObrasArr.forEach((ub) => {
@@ -203,13 +167,6 @@ export function transform_fact_planes_de_evaluacion(data) {
 
   const proveedoresMap = new Map(
     proveedoresArr.map((proveedor) => [proveedor["Row ID"], proveedor])
-  );
-
-  const tiposProveedorMap = new Map(
-    tiposProveedorArr.map((tipoProveedor) => [
-      tipoProveedor["Row ID"],
-      tipoProveedor,
-    ])
   );
 
   const criteriosDeEvaluacionMap = new Map(
@@ -247,7 +204,6 @@ export function transform_fact_planes_de_evaluacion(data) {
   });
 
   const evaluacionesMap = new Map();
-
   evaluacionesArr.forEach((e) => {
     const llave = `${e.id_obra}-${e.id_proveedor}-${e.id_corte_evaluacion}`;
     if (!evaluacionesMap.has(llave)) evaluacionesMap.set(llave, new Set());
@@ -301,8 +257,37 @@ export function transform_fact_planes_de_evaluacion(data) {
     }
   }
 
-  const maximosPuntajesPorTipoProveedorIdCriterioId = new Map();
+  const columnasConPuntajes = [
+    "1_cumple_con_las_especificaciones_tecnicas",
+    "2_entrega_oportuna_del_producto",
+    "3_servicio_post-venta",
+    "4_entrega_de_certificado_de_calidad",
+    "5_cumple_con_las_especificaciones_tecnicas_del_servicio",
+    "6_cumple_con_el_programa_de_obra",
+    "7_ofrece_capacidad_de_respuesta_ante_las_solicitudes_de_los_clientes",
+    "8_aporta_positivamente_a_la_solucion_de_problemas_en_el_proyecto",
+    "9_cumple_oportunamente_con_la_documentación_solicitada_para_el_ingreso",
+    "10_cumple_oportunamente_con_los_aportes_de_seguridad_social",
+    "11_cumple_oportunamente_con_la_realización_de_examenes_ocupacionales",
+    "12_participa_activamente_en_actividades_sst_inducciones_capacitaciones",
+    "13_cumple_con_el_uso_de_los_elementos_de_proteccion_personal",
+    "14_cumple _con_el_reporte_de_todas_las_novedades_del_personal",
+    "15_cumple_con_los_reportes_de_accidentes_presentados",
+    "16_cumple_oportunamente_con_los_registros_solicitados_del_sg-sst_y_ambiental",
+    "17_cumple_con_las_especificaciones_tecnicas_de_los_materiales",
+    "18_disponibilidad_del_material",
+    "19_entregas_oportunas",
+    "20_vigencia_de_licencias_que_apliquen",
+    "21_programacion_y_ejecucion_de_los_trabajos_de_campo",
+    "22_cumple_con_las_fechas_definidas_para_entrega_de_informes",
+    "23_cumple_oportunamente_con_los_registros_solicitados_del_sg-sst_o_cert_calibr",
+    "24_cumple_con_el_servicio_dentro_del_programa_establecido",
+    "25_cumple_con_los_todos_los_permisos_o_licencias_requeridas",
+    "26_continuidad_y_rendimiento_en_la_prestacion_del_servicio",
+    "27_suministra_el_personal_competente_para_el_servicio_que_presta",
+  ];
 
+  const maximosPuntajesPorTipoProveedorIdCriterioId = new Map();
   Array.from(tipoProveedorCriteriosPuntajesMap.values()).forEach(
     (criterio_puntaje) => {
       const id_tipo_proveedor = criterio_puntaje.id_tipo_proveedor;
@@ -339,9 +324,13 @@ export function transform_fact_planes_de_evaluacion(data) {
   );
 
   const factEvaluacion = [];
-  const evaluacionesCriteriosMap = new Map();
   for (const evaluacion of evaluacionesArr) {
     const llave = `${evaluacion.id_obra}-${evaluacion.id_proveedor}-${evaluacion.id_corte_evaluacion}-${evaluacion.evaluador}`;
+
+    if (!planesDeEvaluacionIdsMap.get(llave)) {
+      planesDeEvaluacionIdsMap.set(llave, generateRandomString());
+    }
+
     const planId = planesDeEvaluacionIdsMap.get(llave);
     const proveedor = proveedoresMap.get(evaluacion.id_proveedor);
     const tipoProveedorId = proveedor.id_tipo_proveedor;
@@ -354,22 +343,6 @@ export function transform_fact_planes_de_evaluacion(data) {
         const puntaje = +tipoProveedorCriteriosPuntajesMap.get(valor).puntaje;
         const criterioId =
           tipoProveedorCriteriosPuntajesMap.get(valor).id_criterio;
-
-        if (
-          !evaluacionesCriteriosMap.has(
-            `${evaluacion.id_corte_evaluacion}-${evaluacion.id_proveedor}-${evaluacion.id_obra}-${criterioId}`
-          )
-        ) {
-          evaluacionesCriteriosMap.set(
-            `${evaluacion.id_corte_evaluacion}-${evaluacion.id_proveedor}-${evaluacion.id_obra}-${criterioId}`,
-            [puntaje]
-          );
-        }
-        evaluacionesCriteriosMap
-          .get(
-            `${evaluacion.id_corte_evaluacion}-${evaluacion.id_proveedor}-${evaluacion.id_obra}-${criterioId}`
-          )
-          .push(puntaje);
 
         return {
           criterioId,
@@ -397,61 +370,9 @@ export function transform_fact_planes_de_evaluacion(data) {
     });
   }
 
-  const factEstadoDeProveedores = [];
-
-  for (const corte of cortesDeEvaluacionArr) {
-    const relatedPlanes =
-      corte["Related planes_de_evaluacions"]
-        ?.split(",")
-        .map((id) => id.trim())
-        .filter((id) => id) ?? [];
-
-    for (const planId of relatedPlanes) {
-      const plan = planesDeEvaluacionMap.get(planId);
-      const proveedorId = plan.id_proveedor;
-      const proveedor = proveedoresMap.get(proveedorId);
-      const tipoProveedorId = proveedor.id_tipo_proveedor;
-      const tipoProveedor = tiposProveedorMap.get(tipoProveedorId);
-
-      const obraId = plan.id_obra;
-
-      const criteriosDeEvaluacion =
-        maximosPuntajesPorTipoProveedorIdCriterioId.get(tipoProveedorId);
-
-      for (const criterioId of criteriosDeEvaluacion.keys()) {
-        const puntajes = evaluacionesCriteriosMap.get(
-          `${plan.id_corte_evaluacion}-${proveedorId}-${obraId}-${criterioId}`
-        );
-
-        const puntajePromedio =
-          puntajes && puntajes.length > 0
-            ? (
-                puntajes.reduce((acc, curr) => acc + +curr, 0) / puntajes.length
-              ).toFixed(2)
-            : "-1";
-
-        factEstadoDeProveedores.push({
-          id_criterio: criteriosDeEvaluacionMap.get(criterioId),
-          id_proveedor: proveedoresMap.get(proveedorId).nombre_proveedor,
-          id_obra: obrasMap.get(obraId).nombre_obra,
-          id_tipo_proveedor: tipoProveedor.nombre_tipo_proveedor,
-          id_corte_evaluacion: cortesDeEvaluacionMap.get(
-            plan.id_corte_evaluacion
-          ).fecha_corte,
-          puntaje_maximo: maximosPuntajesPorTipoProveedorIdCriterioId
-            .get(tipoProveedorId)
-            .get(criterioId),
-          puntaje_promedio: puntajePromedio,
-          evaluado: puntajes && puntajes.length > 0 ? "si" : "no",
-        });
-      }
-    }
-  }
-
   return {
     factPlanEvaluacion,
     factEvaluacion,
-    factEstadoDeProveedores,
   };
 }
 
@@ -464,7 +385,7 @@ export function transform(data) {
   const dimProveedor = transform_dim_proveedor(data);
   const dimRol = transform_dim_roles(data);
   const dimUsuario = transform_dim_usuarios(data);
-  const { factPlanEvaluacion, factEvaluacion, factEstadoDeProveedores } =
+  const { factPlanEvaluacion, factEvaluacion } =
     transform_fact_planes_de_evaluacion(data);
 
   return {
@@ -478,6 +399,5 @@ export function transform(data) {
     dimUsuario,
     factPlanEvaluacion,
     factEvaluacion,
-    factEstadoDeProveedores,
   };
 }

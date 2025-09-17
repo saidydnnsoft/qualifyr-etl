@@ -1,20 +1,13 @@
 import axios from "axios";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const appsheetRegion = "www.appsheet.com";
-const appKey = process.env.APP_KEY;
-const appId = process.env.APP_ID;
-
-async function extractOne(tableName) {
-  const url = `https://${appsheetRegion}/api/v2/apps/${appId}/tables/${tableName}/Action`;
+async function extractOne(tableName, appSheetConfig) {
+  const url = `https://${appSheetConfig.appsheetRegion}/api/v2/apps/${appSheetConfig.appId}/tables/${tableName}/Action`;
   const payload = { Action: "Find" };
 
   try {
     const { data } = await axios.post(url, payload, {
       headers: {
-        ApplicationAccessKey: appKey,
+        ApplicationAccessKey: appSheetConfig.appKey,
         "Content-Type": "application/json",
       },
     });
@@ -29,6 +22,12 @@ async function extractOne(tableName) {
 }
 
 export async function extract() {
+  const appSheetConfig = {
+    appKey: process.env.APP_KEY,
+    appId: process.env.APP_ID,
+    appsheetRegion: "www.appsheet.com",
+  };
+
   const tableConfigs = [
     { name: "proveedores", asMap: false },
     { name: "tipos_de_proveedores", asMap: false },
@@ -45,7 +44,7 @@ export async function extract() {
   ];
 
   const data = await Promise.all(
-    tableConfigs.map(({ name }) => extractOne(name))
+    tableConfigs.map(({ name }) => extractOne(name, appSheetConfig))
   );
 
   const tables = {};
