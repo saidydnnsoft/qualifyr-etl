@@ -91,7 +91,14 @@ export async function loadAll(transformedData) {
   if (!datasetId) {
     throw new Error("DATASET_ID environment variable must be set.");
   }
-  const bq = new BigQuery();
+  let bq;
+  if (fs.existsSync("service-account-key.json")) {
+    bq = new BigQuery({
+      keyFilename: "service-account-key.json",
+    });
+  } else {
+    bq = new BigQuery();
+  }
 
   // Define table IDs from environment variables
   const tableIds = {

@@ -1,4 +1,11 @@
 import { http } from "@google-cloud/functions-framework";
+import dotenv from "dotenv";
+import fs from "fs";
+
+if (fs.existsSync(".env")) {
+  dotenv.config();
+}
+
 import { extract } from "./extract.js";
 import { transform } from "./transform.js";
 import { loadAll } from "./load.js";
