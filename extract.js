@@ -1,23 +1,38 @@
 import axios from "axios";
 
-async function extractOne(tableName, appSheetConfig) {
+async function extractOne(tableName, appSheetConfig, retries = 3) {
   const url = `https://${appSheetConfig.appsheetRegion}/api/v2/apps/${appSheetConfig.appId}/tables/${tableName}/Action`;
   const payload = { Action: "Find" };
 
-  try {
-    const { data } = await axios.post(url, payload, {
-      headers: {
-        ApplicationAccessKey: appSheetConfig.appKey,
-        "Content-Type": "application/json",
-      },
-    });
-    return data;
-  } catch (err) {
-    console.error(
-      `❌ Error extracting from ${tableName}:`,
-      err.response?.data || err.message
-    );
-    return [];
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const { data } = await axios.post(url, payload, {
+        headers: {
+          ApplicationAccessKey: appSheetConfig.appKey,
+          "Content-Type": "application/json",
+        },
+      });
+      if (attempt > 0) {
+        console.log(`✅ ${tableName} succeeded after ${attempt} retries`);
+      }
+      return data;
+    } catch (err) {
+      const is429 = err.response?.status === 429;
+      const isLastAttempt = attempt === retries;
+
+      if (is429 && !isLastAttempt) {
+        const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
+        console.warn(`⚠️ Rate limited on ${tableName}, retrying in ${waitTime}ms...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+
+      console.error(
+        `❌ Error extracting from ${tableName}:`,
+        err.response?.data || err.message
+      );
+      return [];
+    }
   }
 }
 
@@ -43,9 +58,14 @@ export async function extract() {
     { name: "usuarios_obras", asMap: false },
   ];
 
-  const data = await Promise.all(
-    tableConfigs.map(({ name }) => extractOne(name, appSheetConfig))
-  );
+  const data = [];
+  for (const { name } of tableConfigs) {
+    data.push(await extractOne(name, appSheetConfig));
+    await new Promise(resolve => setTimeout(resolve, 2000)); // 2s delay between requests
+  }
+
+  const successCount = data.filter(d => d.length > 0).length;
+  console.log(`📊 Extracted ${successCount}/${tableConfigs.length} tables successfully`);
 
   const tables = {};
   tableConfigs.forEach(({ name, asMap }, i) => {

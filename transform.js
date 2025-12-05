@@ -340,15 +340,20 @@ export function transform_fact_planes_de_evaluacion(data) {
         return columnasConPuntajes.includes(columna) && valor !== "";
       })
       .map(([columna, valor]) => {
-        const puntaje = +tipoProveedorCriteriosPuntajesMap.get(valor).puntaje;
-        const criterioId =
-          tipoProveedorCriteriosPuntajesMap.get(valor).id_criterio;
+        const puntajeData = tipoProveedorCriteriosPuntajesMap.get(valor);
+        if (!puntajeData) {
+          console.warn(`⚠️ Missing puntaje data for valor: ${valor}`);
+          return null;
+        }
+        const puntaje = +puntajeData.puntaje;
+        const criterioId = puntajeData.id_criterio;
 
         return {
           criterioId,
           puntaje,
         };
-      });
+      })
+      .filter(obj => obj !== null);
 
     objetosPuntajes.forEach((objetoPuntaje) => {
       const criterioId = objetoPuntaje.criterioId;
