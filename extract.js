@@ -1,6 +1,6 @@
 import axios from "axios";
 
-async function extractOne(tableName, appSheetConfig, retries = 3) {
+async function extractOne(tableName, appSheetConfig, retries = 4) {
   const url = `https://${appSheetConfig.appsheetRegion}/api/v2/apps/${appSheetConfig.appId}/tables/${tableName}/Action`;
   const payload = { Action: "Find" };
 
@@ -22,8 +22,10 @@ async function extractOne(tableName, appSheetConfig, retries = 3) {
 
       if (is429 && !isLastAttempt) {
         const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
-        console.warn(`⚠️ Rate limited on ${tableName}, retrying in ${waitTime}ms...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        console.warn(
+          `⚠️ Rate limited on ${tableName}, retrying in ${waitTime}ms...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
         continue;
       }
 
@@ -61,11 +63,13 @@ export async function extract() {
   const data = [];
   for (const { name } of tableConfigs) {
     data.push(await extractOne(name, appSheetConfig));
-    await new Promise(resolve => setTimeout(resolve, 2000)); // 2s delay between requests
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay between requests
   }
 
-  const successCount = data.filter(d => d.length > 0).length;
-  console.log(`📊 Extracted ${successCount}/${tableConfigs.length} tables successfully`);
+  const successCount = data.filter((d) => d.length > 0).length;
+  console.log(
+    `📊 Extracted ${successCount}/${tableConfigs.length} tables successfully`
+  );
 
   const tables = {};
   tableConfigs.forEach(({ name, asMap }, i) => {
